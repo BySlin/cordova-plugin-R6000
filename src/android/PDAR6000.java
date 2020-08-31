@@ -38,7 +38,7 @@ public class PDAR6000 extends CordovaPlugin {
         Thread thread = new InventoryThread();
         thread.start();
         // init sound pool
-        com.byslin.cordova.plugin.Util.initSoundPool(cordova.getContext());
+        Util.initSoundPool(cordova.getContext());
     }
 
     @Override
@@ -88,6 +88,7 @@ public class PDAR6000 extends CordovaPlugin {
             case "stop":
                 Log.d(LOG_TAG, "stop inventory");
                 startFlag = false;
+                listEPC.clear();
                 return true;
             case "register":
                 this.callbackContext = callbackContext;
