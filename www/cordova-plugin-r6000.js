@@ -5,7 +5,7 @@ exports.start = function (success, error) {
 };
 
 exports.stop = function (success, error) {
-  exec(success, error, "cordova-plugin-r6000", "start", []);
+  exec(success, error, "cordova-plugin-r6000", "stop", []);
 };
 
 exports.register = function (success, error) {
