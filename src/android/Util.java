@@ -37,7 +37,7 @@ public class Util {
                                 .build())
                 .build();
         suondMap = new HashMap<>();
-        suondMap.put(1, sp.load(context, getAppResource("raw", "msg"), 1));
+        suondMap.put(1, sp.load(context, getAppResource("msg", "raw"), 1));
     }
 
     //play sound
