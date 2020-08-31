@@ -27,10 +27,11 @@ public class PDAR6000 extends CordovaPlugin {
     private UhfReader manager;
     private boolean runFlag = true;
     private boolean startFlag = false;
+    private boolean playSound = true;
     private int power = 30;//rate of work
     private int area = 2;
     private CallbackContext callbackContext;
-    private ArrayList<com.byslin.cordova.plugin.EPC> listEPC = new ArrayList<>();
+    private ArrayList<EPC> listEPC = new ArrayList<>();
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
@@ -38,7 +39,7 @@ public class PDAR6000 extends CordovaPlugin {
         Thread thread = new InventoryThread();
         thread.start();
         // init sound pool
-        Util.initSoundPool(cordova.getContext());
+        Util.initSoundPool(cordova);
     }
 
     @Override
@@ -96,14 +97,27 @@ public class PDAR6000 extends CordovaPlugin {
             case "setOutputPower":
                 int power = args.getInt(0);
                 if (manager != null) {
-                    manager.setOutputPower(power);
+                    cordova.getThreadPool().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            manager.setOutputPower(power);
+                        }
+                    });
                 }
                 return true;
             case "setWorkArea":
                 int area = args.getInt(0);
                 if (manager != null) {
-                    manager.setWorkArea(area);
+                    cordova.getThreadPool().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            manager.setWorkArea(area);
+                        }
+                    });
                 }
+            case "setPlaySound":
+                boolean isPlaySound = args.getBoolean(0);
+                playSound = isPlaySound;
             default:
                 Log.d(LOG_TAG, "unknown action:" + action);
                 return false;
@@ -124,7 +138,9 @@ public class PDAR6000 extends CordovaPlugin {
                     tagList = manager.inventoryRealTime(); //实时盘存
                     if (tagList != null && !tagList.isEmpty()) {
                         //播放提示音
-                        com.byslin.cordova.plugin.Util.play(1, 0);
+                        if (playSound) {
+                            Util.play(1, 0);
+                        }
                         for (TagModel tag : tagList) {
                             if (tag == null) {
                                 String epcStr = "";
@@ -155,14 +171,14 @@ public class PDAR6000 extends CordovaPlugin {
     private void addToList(final String epc, final byte rssi) {
         // The epc for the first time
         if (listEPC.isEmpty()) {
-            com.byslin.cordova.plugin.EPC epcTag = new com.byslin.cordova.plugin.EPC();
+            EPC epcTag = new EPC();
             epcTag.setEpc(epc);
             epcTag.setCount(1);
             epcTag.setRssi(rssi);
             listEPC.add(epcTag);
         } else {
             for (int i = 0; i < listEPC.size(); i++) {
-                com.byslin.cordova.plugin.EPC mEPC = listEPC.get(i);
+                EPC mEPC = listEPC.get(i);
                 // list contain this epc
                 if (epc.equals(mEPC.getEpc())) {
                     mEPC.setCount(mEPC.getCount() + 1);
@@ -171,7 +187,7 @@ public class PDAR6000 extends CordovaPlugin {
                     break;
                 } else if (i == (listEPC.size() - 1)) {
                     // list doesn't contain this epc
-                    com.byslin.cordova.plugin.EPC newEPC = new com.byslin.cordova.plugin.EPC();
+                    EPC newEPC = new EPC();
                     newEPC.setEpc(epc);
                     newEPC.setCount(1);
                     newEPC.setRssi(rssi);
@@ -180,13 +196,15 @@ public class PDAR6000 extends CordovaPlugin {
             }
         }
         // play sound
-        com.byslin.cordova.plugin.Util.play(1, 0);
+        if (playSound) {
+            Util.play(1, 0);
+        }
         PluginResult pluginResult = new JSONPluginResult(PluginResult.Status.OK, JSON.toJSONString(listEPC));
         pluginResult.setKeepCallback(true);
         callbackContext.sendPluginResult(pluginResult);
     }
 
-    class JSONPluginResult extends PluginResult {
+    static class JSONPluginResult extends PluginResult {
 
         public JSONPluginResult(Status status, String message) {
             super(status, message);

@@ -19,3 +19,7 @@ exports.setOutputPower = function (power, success, error) {
 exports.setWorkArea = function (area, success, error) {
   exec(success, error, "cordova-plugin-r6000", "setWorkArea", [area]);
 };
+
+exports.setPlaySound = function (playSound, success, error) {
+  exec(success, error, "cordova-plugin-r6000", "setPlaySound", [playSound]);
+};
