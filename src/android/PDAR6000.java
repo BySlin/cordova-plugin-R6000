@@ -83,13 +83,13 @@ public class PDAR6000 extends CordovaPlugin {
     public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
         switch (action) {
             case "start":
+                listEPC.clear();
                 Log.d(LOG_TAG, "start inventory");
                 startFlag = true;
                 return true;
             case "stop":
                 Log.d(LOG_TAG, "stop inventory");
                 startFlag = false;
-                listEPC.clear();
                 return true;
             case "register":
                 this.callbackContext = callbackContext;
