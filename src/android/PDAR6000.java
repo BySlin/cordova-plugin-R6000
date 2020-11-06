@@ -20,7 +20,7 @@ import java.util.List;
 import cn.pda.serialport.Tools;
 
 /**
- * This class echoes a string called from JavaScript.
+ * UHF PDA R600
  */
 public class PDAR6000 extends CordovaPlugin {
     private static final String LOG_TAG = "PDAR6000";
